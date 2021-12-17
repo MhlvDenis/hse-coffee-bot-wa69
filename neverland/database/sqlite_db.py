@@ -1,6 +1,7 @@
 import sqlite3 as sq
 import re
 import random
+from collections import Counter
 from config import ADMIN_ID
 from create_bot import bot
 
@@ -33,9 +34,8 @@ async def sql_add_command(state):
         hashtags.commit()
 
 
-async def sql_read(usr_id):
-    for ret in users_cur.execute('SELECT * FROM users').fetchall():
-        await bot.send_photo(usr_id, ret[0], f'{ret[1]}\nDescription: {ret[2]}\nHashtags: {ret[3]}\nUsername: {ret[5]}')
+async def sql_read():
+    return users_cur.execute('SELECT * FROM users').fetchall()
 
 
 async def sql_user_exists(usr_id):
@@ -44,14 +44,12 @@ async def sql_user_exists(usr_id):
 
 async def sql_get_profile(usr_id):
     if await sql_user_exists(usr_id):
-        ret = users_cur.execute('SELECT * FROM users WHERE id == ?', (usr_id, )).fetchone()
-        await bot.send_photo(usr_id, ret[0], f'{ret[1]}\nDescription: {ret[2]}\nHashtags: {ret[3]}')
+        return users_cur.execute('SELECT * FROM users WHERE id == ?', (usr_id, )).fetchone()
 
 
-async def sql_another_profile(host_id, usr_id):
+async def sql_another_profile(usr_id):
     if await sql_user_exists(usr_id):
-        ret = users_cur.execute('SELECT * FROM users WHERE id == ?', (usr_id, )).fetchone()
-        await bot.send_photo(host_id, ret[0], f'{ret[1]}\nDescription: {ret[2]}\nHashtags: {ret[3]}\nUsername: @{ret[5]}')
+        return users_cur.execute('SELECT * FROM users WHERE id == ?', (usr_id, )).fetchone()
 
 
 async def sql_predict_shuffle(usr_id):
@@ -67,3 +65,14 @@ async def sql_predict_shuffle(usr_id):
             usr[0] += random.randint(0, 4)
         predict_users.sort(reverse=True)
         return [_[1] for _ in predict_users[:2]]
+
+
+async def get_sorted_hashtags():
+    hashtags_list = []
+    for ret in hashtags_cur.execute('SELECT * FROM hashtags').fetchall():
+        hashtags_list += re.findall(r"#(\w+)", ret[0])
+    return [_[0] for _ in Counter(hashtags_list).most_common()]
+
+
+async def get_popular_hashtags():
+    return get_sorted_hashtags()[:5]

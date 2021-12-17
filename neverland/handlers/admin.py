@@ -4,10 +4,20 @@ from database import sqlite_db
 
 
 @dp.message_handler(commands=['allsee'])
-async def show_all(message: types.Message):
+async def show_all_users(message: types.Message):
     if sqlite_db.is_admin(message.from_user.id):
-        await sqlite_db.sql_read(message.from_user.id)
+        result = await sqlite_db.sql_read()
+        for ret in result:
+            await bot.send_photo(message.from_user.id, ret[0], f'{ret[1]}\nDescription: {ret[2]}\nHashtags: {ret[3]}\nUsername: {ret[5]}')
+
+
+@dp.message_handler(commands=['allhashtags'])
+async def show_all_hashtags(message: types.Message):
+    if sqlite_db.is_admin(message.from_user.id):
+        hashtags = await sqlite_db.get_sorted_hashtags()
+        await bot.send_message(message.from_user.id, ', '.join(hashtags))
 
 
 def register_handlers_admin(dp: Dispatcher):
-    dp.register_message_handler(show_all, commands=['allsee'])
+    dp.register_message_handler(show_all_users, commands=['allsee'])
+    dp.register_message_handler(show_all_hashtags, commands=['allhashtags'])

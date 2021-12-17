@@ -22,7 +22,8 @@ async def get_help(message: types.Message):
 
 @dp.message_handler(commands=['profile'])
 async def get_profile(message: types.Message):
-    await sqlite_db.sql_get_profile(message.from_user.id)
+    ret = await sqlite_db.sql_get_profile(message.from_user.id)
+    await bot.send_photo(message.from_user.id, ret[0], f'{ret[1]}\nDescription: {ret[2]}\nHashtags: {ret[3]}')
 
 
 @dp.message_handler(commands=['companion'])
@@ -30,7 +31,9 @@ async def get_predict(message: types.Message):
     predicts = await sqlite_db.sql_predict_shuffle(message.from_user.id)
     if predicts:
         for predict_id in predicts:
-            await sqlite_db.sql_another_profile(message.from_user.id, predict_id)
+            ret = await sqlite_db.sql_another_profile(predict_id)
+            await bot.send_photo(message.from_user.id, ret[0],
+                                 f'{ret[1]}\nDescription: {ret[2]}\nHashtags: {ret[3]}\nUsername: @{ret[5]}')
     else:
         await bot.send_message(message.from_user.id, 'Пока никого не нашел :(')
 

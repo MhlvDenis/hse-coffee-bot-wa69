@@ -22,7 +22,8 @@ async def start_make_form(message: types.Message):
     else:
         await bot.send_message(message.from_user.id, 'Хей, а ты ведь уже зарегистрирован!\nВот твой профиль:',
                                reply_markup=kb_admin if sqlite_db.is_admin(message.from_user.id) else kb_user)
-        await sqlite_db.sql_get_profile(message.from_user.id)
+        ret = await sqlite_db.sql_get_profile(message.from_user.id)
+        await bot.send_photo(message.from_user.id, ret[0], f'{ret[1]}\nDescription: {ret[2]}\nHashtags: {ret[3]}')
 
 
 @dp.message_handler(state="*", commands=['cancel'])
