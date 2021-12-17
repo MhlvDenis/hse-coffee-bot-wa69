@@ -1,5 +1,5 @@
 *.db
-
+config.py
 __pycache__/
 Pipfile
 Pipfile.lock
