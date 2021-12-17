@@ -20,20 +20,23 @@ async def get_help(message: types.Message):
     await message.reply(HELP_DOC)
 
 
-@dp.message_handler(commands=['Мой_профиль'])
+@dp.message_handler(commands=['profile'])
 async def get_profile(message: types.Message):
     await sqlite_db.sql_get_profile(message.from_user.id)
 
 
-@dp.message_handler(commands=['Найти_сокофейника'])
+@dp.message_handler(commands=['companion'])
 async def get_predict(message: types.Message):
     predicts = await sqlite_db.sql_predict_shuffle(message.from_user.id)
-    for predict_id in predicts:
-        await sqlite_db.sql_another_profile(message.from_user.id, predict_id)
+    if predicts:
+        for predict_id in predicts:
+            await sqlite_db.sql_another_profile(message.from_user.id, predict_id)
+    else:
+        await bot.send_message(message.from_user.id, 'Пока никого не нашел :(')
 
 
 def register_handlers_user(dp: Dispatcher):
     dp.register_message_handler(bot_start_work, commands=['start'])
-    dp.register_message_handler(get_profile, commands=['Мой_профиль'])
-    dp.register_message_handler(get_predict, commands=['Найти_сокофейника'])
     dp.register_message_handler(get_help, commands=['help'])
+    dp.register_message_handler(get_profile, commands=['profile'])
+    dp.register_message_handler(get_predict, commands=['companion'])

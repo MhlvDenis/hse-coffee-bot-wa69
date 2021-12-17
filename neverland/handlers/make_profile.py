@@ -14,7 +14,7 @@ class FSMMakeForm(StatesGroup):
     hashtags = State()
 
 
-@dp.message_handler(commands=['Создать_профиль'], state=None)
+@dp.message_handler(commands=['create'], state=None)
 async def start_make_form(message: types.Message):
     if not await sqlite_db.sql_user_exists(message.from_user.id):
         await FSMMakeForm.photo.set()
@@ -25,8 +25,8 @@ async def start_make_form(message: types.Message):
         await sqlite_db.sql_get_profile(message.from_user.id)
 
 
-@dp.message_handler(state="*", commands=['Отмена'])
-@dp.message_handler(Text(equals='Отмена', ignore_case=True), state="*")
+@dp.message_handler(state="*", commands=['cancel'])
+@dp.message_handler(Text(equals='cancel', ignore_case=True), state="*")
 async def cancel_handler(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
     if current_state is None:
@@ -72,9 +72,9 @@ async def load_hashtags(message: types.Message, state: FSMContext):
 
 
 def register_handlers_client(dp: Dispatcher):
-    dp.message_handler(start_make_form, commands=['Создать_профиль'], state=None)
-    dp.message_handler(cancel_handler, commands='Отмена', state="*")
-    dp.message_handler(cancel_handler, Text(equals='Отмена', ignore_case=True), state="*")
+    dp.message_handler(start_make_form, commands=['create'], state=None)
+    dp.message_handler(cancel_handler, commands='cancel', state="*")
+    dp.message_handler(cancel_handler, Text(equals='cancel', ignore_case=True), state="*")
     dp.message_handler(load_photo, state=FSMMakeForm.photo, content_types=['photo'])
     dp.message_handler(load_name, state=FSMMakeForm.name)
     dp.message_handler(load_description, state=FSMMakeForm.description)
