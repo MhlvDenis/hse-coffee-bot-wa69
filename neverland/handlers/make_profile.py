@@ -72,7 +72,7 @@ async def load_hashtags(message: types.Message, state: FSMContext):
     await state.finish()
 
 
-def register_handlers_client(dp: Dispatcher):
+def register_handlers_make_profile(dp: Dispatcher):
     dp.message_handler(start_make_form, commands=['create'], state=None)
     dp.message_handler(cancel_handler, commands='cancel', state="*")
     dp.message_handler(cancel_handler, Text(equals='cancel', ignore_case=True), state="*")

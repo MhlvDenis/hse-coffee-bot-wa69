@@ -11,7 +11,7 @@ async def on_startup(_):
 
 user.register_handlers_user(dp)
 admin.register_handlers_admin(dp)
-make_profile.register_handlers_client(dp)
+make_profile.register_handlers_make_profile(dp)
 
 
 if __name__ == '__main__':

@@ -76,3 +76,9 @@ async def get_sorted_hashtags():
 
 async def get_popular_hashtags():
     return get_sorted_hashtags()[:5]
+
+
+async def set_field(state):
+    async with state.proxy() as data:
+        users_cur.execute('UPDATE users SET ' + data['field'] + ' = ? WHERE id = ?', (data['content'], data['id'], ))
+        users.commit()
