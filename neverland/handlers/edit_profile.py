@@ -9,7 +9,7 @@ from database import sqlite_db
 
 class FSMMakeForm(StatesGroup):
     field = State()
-    photo = State()
+    photo_edit = State()
     content = State()
 
 
@@ -42,18 +42,22 @@ async def load_field(message: types.Message, state: FSMContext):
         if message.text != 'photo':
             await FSMMakeForm.next()
             if message.text == 'name':
-                await message.reply('Введи новое имя')
+                await bot.send_message(message.from_user.id, 'Введи новое имя', reply_markup=kb_cancel_edit)
             elif message.text == 'description':
-                await message.reply('Придумай новое описание')
+                await bot.send_message(message.from_user.id, 'Придумай новое описание', reply_markup=kb_cancel_edit)
             else:
-                await message.reply('Выбери себе новые хештеги')
+                await bot.send_message(message.from_user.id, 'Выбери себе новые хештеги', reply_markup=kb_cancel_edit)
+                ret = await sqlite_db.get_popular_hashtags()
+                if ret:
+                    await bot.send_message(message.from_user.id, 'Самые популярные сейчас:\n#' + '\n#'.join(ret),
+                                           reply_markup=kb_cancel_edit)
         else:
-            await message.reply('Выберу новую фотографию')
+            await bot.send_message(message.from_user.id, 'Выбери новую фотографию', reply_markup=kb_cancel_edit)
     else:
         await message.reply('Выбери из предложенных :)')
 
 
-@dp.message_handler(content_types=['photo'], state=FSMMakeForm.photo)
+@dp.message_handler(content_types=['photo'], state=FSMMakeForm.photo_edit)
 async def load_photo_edit(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['content'] = message.photo[0].file_id
@@ -79,5 +83,5 @@ def register_handlers_edit_profile(dp: Dispatcher):
     dp.message_handler(start_edit_form, commands=['edit'], state=None)
     dp.message_handler(cancel_edit_handler, commands=['cancеl'], state="*")
     dp.message_handler(cancel_edit_handler, Text(equals='cancеl', ignore_case=True), state="*")
-    dp.message_handler(load_photo_edit, state=FSMMakeForm.photo, content_types=['photo'])
+    dp.message_handler(load_photo_edit, state=FSMMakeForm.photo_edit, content_types=['photo'])
     dp.message_handler(load_content, state=FSMMakeForm.content)

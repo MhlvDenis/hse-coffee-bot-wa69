@@ -58,6 +58,10 @@ async def load_description(message: types.Message, state: FSMContext):
         data['description'] = message.text
     await FSMMakeForm.next()
     await message.reply('Напиши несколько хештегов, по которым я смогу подобрать тебе лучшего сокофейника')
+    ret = await sqlite_db.get_popular_hashtags()
+    if ret:
+        await bot.send_message(message.from_user.id, 'Самые популярные сейчас:\n#' + '\n#'.join(ret),
+                               reply_markup=kb_cancel_profile)
 
 
 @dp.message_handler(state=FSMMakeForm.hashtags)

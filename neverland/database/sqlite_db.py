@@ -3,7 +3,6 @@ import re
 import random
 from collections import Counter
 from config import ADMIN_ID
-from create_bot import bot
 
 
 def is_admin(usr_id):
@@ -75,7 +74,10 @@ async def get_sorted_hashtags():
 
 
 async def get_popular_hashtags():
-    return get_sorted_hashtags()[:5]
+    ret = await get_sorted_hashtags()
+    if ret:
+        return ret[:5]
+    return None
 
 
 async def set_field(state):
